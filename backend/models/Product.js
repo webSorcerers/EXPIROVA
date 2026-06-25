@@ -4,7 +4,7 @@ const productSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
+      required: false,
       ref: 'User', // Ties this product entry to a specific User
     },
     productName: {

@@ -1,4 +1,7 @@
-import Product from '../models/Product.js';
+import fs from "fs";
+import Product from "../models/Product.js";
+import { extractMedicineData } from "../services/geminiService.js";
+
 
 // @desc    Add a new product or scanned medicine
 // @route   POST /api/products
@@ -25,10 +28,16 @@ export const addProduct = async (req, res, next) => {
 // @desc    Get all active products/medicines for logged-in user
 // @route   GET /api/products
 // @access  Private
-export const getProducts = async (req, res, next) => {
+export const getProducts = async (
+  req,
+  res,
+  next
+) => {
   try {
-    // Sort items so the ones closest to expiring show up first
-    const products = await Product.find({ userId: req.user._id }).sort({ expiryDate: 1 });
+    const products =
+      await Product.find()
+        .sort({ expiryDate: 1 });
+
     res.json(products);
   } catch (error) {
     next(error);
@@ -84,6 +93,39 @@ export const deleteProduct = async (req, res, next) => {
     await product.deleteOne();
     res.json({ message: 'Product removed from tracking' });
   } catch (error) {
+    next(error);
+  }
+};
+export const scanMedicine = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        message: "Image required",
+      });
+    }
+
+    const data = await extractMedicineData(
+      req.file.path
+    );
+
+    const product = await Product.create({
+      productName:
+        data.productName ||
+        "Unknown Medicine",
+      category: "Medicine",
+      expiryDate:
+        data.expiryDate,
+    });
+
+    fs.unlinkSync(req.file.path);
+
+    res.status(201).json(product);
+  } catch (error) {
+    console.error(error);
     next(error);
   }
 };

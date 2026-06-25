@@ -1,202 +1,342 @@
+import {
+  useRef,
+  useState,
+  useEffect,
+} from "react";
+import API from "../api/axios";
+
 export function Aiscancontent() {
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+
+  const [productName, setProductName] =
+    useState("Waiting...");
+  const [expiryDate, setExpiryDate] =
+    useState("Waiting...");
+  const [loading, setLoading] =
+    useState(false);
+  const [stream, setStream] =
+    useState(null);
+  const [cameraOpen, setCameraOpen] =
+    useState(false);
+
+  const stopCamera = () => {
+    if (stream) {
+      stream
+        .getTracks()
+        .forEach((track) =>
+          track.stop()
+        );
+
+      setStream(null);
+    }
+
+    setCameraOpen(false);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (stream) {
+        stream
+          .getTracks()
+          .forEach((track) =>
+            track.stop()
+          );
+      }
+    };
+  }, [stream]);
+
+  useEffect(() => {
+    const handleVisibility =
+      () => {
+        if (
+          document.hidden &&
+          stream
+        ) {
+          stopCamera();
+        }
+      };
+
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibility
+    );
+
+    return () => {
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibility
+      );
+    };
+  }, [stream]);
+
+  const handleScan = async () => {
+    try {
+      const mediaStream =
+        await navigator.mediaDevices.getUserMedia(
+          {
+            video: true,
+          }
+        );
+
+      setStream(mediaStream);
+      setCameraOpen(true);
+
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject =
+            mediaStream;
+        }
+      }, 100);
+    } catch (error) {
+      console.log(error);
+      alert(
+        "Cannot access camera"
+      );
+    }
+  };
+
+  const uploadImage = async (
+    file
+  ) => {
+    try {
+      setLoading(true);
+
+      const formData =
+        new FormData();
+
+      formData.append(
+        "image",
+        file
+      );
+
+      const res =
+        await API.post(
+          "/products/scan",
+          formData,
+          {
+            headers: {
+              "Content-Type":
+                "multipart/form-data",
+            },
+          }
+        );
+
+      setProductName(
+        res.data.productName ||
+          "Unknown Medicine"
+      );
+
+      setExpiryDate(
+        new Date(
+          res.data.expiryDate
+        ).toLocaleDateString()
+      );
+
+      alert(
+        "Medicine saved successfully!"
+      );
+    } catch (err) {
+      console.log(err);
+
+      alert(
+        JSON.stringify(
+          err.response?.data ||
+            err.message,
+          null,
+          2
+        )
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const captureImage =
+    async () => {
+      try {
+        const canvas =
+          canvasRef.current;
+
+        const video =
+          videoRef.current;
+
+        canvas.width =
+          video.videoWidth;
+
+        canvas.height =
+          video.videoHeight;
+
+        const ctx =
+          canvas.getContext("2d");
+
+        ctx.drawImage(
+          video,
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
+
+        canvas.toBlob(
+          async (blob) => {
+            const file =
+              new File(
+                [blob],
+                "medicine.jpg",
+                {
+                  type: "image/jpeg",
+                }
+              );
+
+            await uploadImage(
+              file
+            );
+
+            stopCamera();
+          },
+          "image/jpeg",
+          0.9
+        );
+      } catch (error) {
+        console.log(error);
+
+        alert(
+          "Capture failed"
+        );
+      }
+    };
+
   return (
     <main
-      className="relative w-full min-h-screen overflow-y-auto"
+      className="relative w-full min-h-screen overflow-hidden"
       style={{
         backgroundImage:
-          "linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=2000')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
+          "linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=2000')",
+        backgroundSize:
+          "cover",
+        backgroundPosition:
+          "center",
       }}
     >
-      {/* Status */}
-      <div className="pt-6 flex justify-center">
-        <div className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-full flex items-center gap-3 border border-white/10">
-          <div className="w-2 h-2 rounded-full bg-[#97cbff] animate-ping"></div>
-
-          <p className="text-white text-sm font-medium">
-            Scanning label...
-          </p>
-        </div>
-      </div>
-
-      {/* Scanner */}
-      <div className="flex items-center justify-center px-8 py-10">
-
-        <div
-          className="w-full max-w-sm aspect-square relative rounded-xl overflow-hidden"
-          style={{
-            border: "2px solid rgba(255,255,255,0.4)",
-            boxShadow: "0 0 0 4000px rgba(0,0,0,0.5)",
-          }}
-        >
-          {/* Corners */}
-          <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[#97cbff] rounded-tl-lg"></div>
-
-          <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#97cbff] rounded-tr-lg"></div>
-
-          <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-[#97cbff] rounded-bl-lg"></div>
-
-          <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-[#97cbff] rounded-br-lg"></div>
-
-          {/* Scan Line */}
-          <div
-            className="absolute top-0 left-0 w-full"
-            style={{
-              height: "2px",
-              background: "#6bd8cb",
-              boxShadow: "0 0 15px #6bd8cb",
-              animation: "scanMove 3s ease-in-out infinite",
-            }}
-          />
-
-          {/* Detection */}
-          <div className="absolute top-1/4 left-1/4 w-32 h-6 border border-[#97cbff]/40 bg-[#0d5f94]/20 backdrop-blur-sm rounded px-2 flex items-center gap-2 animate-pulse">
-
-            <span className="w-2 h-2 rounded-full bg-[#97cbff]"></span>
-
-            <span className="text-[10px] text-white uppercase tracking-wider">
-              Item Detect
-            </span>
-
+      {/* Fullscreen Camera */}
+      {cameraOpen && (
+        <>
+          <div className="fixed inset-0 z-10 bg-black">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full h-full object-cover"
+            />
           </div>
 
-          <div className="absolute bottom-1/3 right-1/4 w-28 h-6 border border-orange-300/40 bg-orange-400/10 backdrop-blur-sm rounded px-2 flex items-center gap-2">
+          {/* Scanner Overlay */}
+          <div className="fixed inset-0 z-20 pointer-events-none flex items-center justify-center">
+            <div className="w-[300px] h-[300px] md:w-[400px] md:h-[400px] border-4 border-cyan-400 rounded-xl relative">
 
-            <span className="w-2 h-2 rounded-full bg-orange-300"></span>
-
-            <span className="text-[10px] text-white uppercase tracking-wider">
-              Exp Date
-            </span>
-
-          </div>
-        </div>
-      </div>
-
-      {/* Data Cards */}
-      <div className="px-4 pb-10">
-
-        <div className="grid grid-cols-2 gap-4 max-w-lg mx-auto">
-
-          <div className="col-span-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-4">
-
-            <div className="flex items-center gap-3">
-
-              <div className="p-2 bg-[#0d5f94]/30 rounded-lg">
-
-                <span className="material-symbols-outlined text-[#97cbff]">
-                  inventory_2
-                </span>
-
-              </div>
-
-              <div>
-                <p className="text-white/60 text-xs uppercase">
-                  Detected Item
-                </p>
-
-                <h3 className="text-white text-xl font-semibold">
-                  Amoxicillin 500mg
-                </h3>
-              </div>
+              <div
+                className="absolute left-0 w-full h-1 bg-cyan-400"
+                style={{
+                  animation:
+                    "scanMove 2s linear infinite",
+                }}
+              />
 
             </div>
-
           </div>
 
-          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-4">
-
-            <p className="text-white/60 text-xs uppercase">
-              Expiry
-            </p>
-
-            <div className="flex items-center gap-2 mt-1">
-
-              <span className="material-symbols-outlined text-orange-300">
-                event
-              </span>
-
-              <p className="text-white font-medium">
-                OCT 2025
-              </p>
-
-            </div>
-
-          </div>
-
-          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-4">
-
-            <p className="text-white/60 text-xs uppercase">
-              Batch ID
-            </p>
-
-            <div className="flex items-center gap-2 mt-1">
-
-              <span className="material-symbols-outlined text-[#97cbff]">
-                qr_code_2
-              </span>
-
-              <p className="text-white font-medium">
-                #BTH-9921-X
-              </p>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      {/* Controls */}
-      <div className="sticky bottom-6 w-full px-4 pb-8 flex justify-between items-center">
-
-        <button className="w-12 h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-white flex items-center justify-center">
-
-          <span className="material-symbols-outlined">
-            flashlight_on
-          </span>
-
-        </button>
-
-        <div className="relative">
-
-          <div className="absolute inset-0 bg-[#0d5f94]/20 rounded-full animate-pulse scale-125"></div>
-
-          <button className="relative w-20 h-20 rounded-full bg-white border-4 border-[#0d5f94] p-1 shadow-2xl">
-
-            <div className="w-full h-full rounded-full bg-[#0d5f94] flex items-center justify-center text-white">
-
-              <span
-                className="material-symbols-outlined text-4xl"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                photo_camera
-              </span>
-
-            </div>
-
+          {/* Close Button */}
+          <button
+            onClick={
+              stopCamera
+            }
+            className="fixed top-24 right-6 z-50 bg-red-600 text-white px-4 py-2 rounded-full shadow-xl"
+          >
+            ✕ Close
           </button>
+        </>
+      )}
+
+      {/* Status */}
+      <div className="relative z-30 pt-6 flex justify-center">
+        <div className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-full">
+
+          <p className="text-white text-sm">
+            {loading
+              ? "Scanning..."
+              : cameraOpen
+              ? "Camera Active"
+              : "Ready To Scan"}
+          </p>
+
+        </div>
+      </div>
+
+      {/* Result Card */}
+      <div className="relative z-30 px-4 pt-10">
+
+        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-4 max-w-lg mx-auto">
+
+          <h3 className="text-white text-2xl font-bold">
+            {productName}
+          </h3>
+
+          <p className="text-white mt-2">
+            Expiry: {expiryDate}
+          </p>
 
         </div>
 
-        <button className="w-12 h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/20 overflow-hidden">
+      </div>
 
-          <img
-            src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=100&q=80"
-            alt="Recent Scan"
-            className="w-full h-full object-cover"
-          />
+      <canvas
+        ref={canvasRef}
+        style={{
+          display: "none",
+        }}
+      />
 
-        </button>
+      {/* Bottom Button */}
+      <div className="fixed bottom-24 left-0 right-0 z-40 flex justify-center">
+
+        {!cameraOpen ? (
+          <button
+            onClick={
+              handleScan
+            }
+            className="bg-[#0d5f94] text-white px-8 py-4 rounded-full text-lg font-semibold shadow-2xl"
+          >
+            📷 Open Camera
+          </button>
+        ) : (
+          <button
+            onClick={
+              captureImage
+            }
+            disabled={
+              loading
+            }
+            className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-2xl"
+          >
+            {loading
+              ? "Scanning..."
+              : "📸 Capture Medicine"}
+          </button>
+        )}
 
       </div>
 
       <style>
         {`
           @keyframes scanMove {
-            0%,100% { transform: translateY(0); }
-            50% { transform: translateY(280px); }
+            0% {
+              top: 0;
+            }
+            100% {
+              top: 100%;
+            }
           }
         `}
       </style>
