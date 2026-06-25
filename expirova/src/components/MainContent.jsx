@@ -1,5 +1,17 @@
+import { Link } from "react-router-dom";
+import { useState } from "react";
 export function MainContent() {
-return ( <main className="px-3 py-4 mt-14 pb-28 bg-[#f3f4f6] min-h-screen">
+  const [showAddModal, setShowAddModal] = useState(false);
+
+const [newItem, setNewItem] = useState({
+  name: "",
+  category: "",
+  location: "",
+  expiryDate: "",
+});
+
+return ( <>
+<main className="px-3 py-4 mt-14 pb-28 bg-[#f3f4f6] min-h-screen">
 
  
   {/* Summary Cards */}
@@ -56,19 +68,26 @@ return ( <main className="px-3 py-4 mt-14 pb-28 bg-[#f3f4f6] min-h-screen">
 
     <div className="grid grid-cols-2 gap-3">
 
-      <button className="bg-[#0d5f94] text-white rounded-2xl py-4 flex items-center justify-center gap-2 shadow-md hover:bg-[#0b527f] transition">
-        <span className="material-symbols-outlined">
-          qr_code_scanner
-        </span>
-        Start Scan
-      </button>
+   
 
-      <button className="bg-[#dce9ff] border border-[#c1d8f5] text-slate-800 rounded-2xl py-4 flex items-center justify-center gap-2 shadow-sm">
-        <span className="material-symbols-outlined">
-          add
-        </span>
-        Manual Add
-      </button>
+<Link to="/aiscan">
+  <button className="bg-[#0d5f94] text-white rounded-2xl py-4 flex items-center justify-center gap-2 shadow-md hover:bg-[#0b527f] transition w-full">
+    <span className="material-symbols-outlined">
+      qr_code_scanner
+    </span>
+    Start Scan
+  </button>
+</Link>
+
+      <button
+  onClick={() => setShowAddModal(true)}
+  className="bg-[#dce9ff] border border-[#c1d8f5] text-slate-800 rounded-2xl py-4 flex items-center justify-center gap-2 shadow-sm hover:bg-[#cfe1ff] transition"
+>
+  <span className="material-symbols-outlined">
+    add
+  </span>
+  Manual Add
+</button>
 
     </div>
 
@@ -82,9 +101,9 @@ return ( <main className="px-3 py-4 mt-14 pb-28 bg-[#f3f4f6] min-h-screen">
         Recent Scans
       </h2>
 
-      <button className="text-[#0d5f94] text-sm font-medium">
+      {/* <button className="text-[#0d5f94] text-sm font-medium">
         View All
-      </button>
+      </button> */}
     </div>
 
     <div className="space-y-3">
@@ -238,19 +257,184 @@ return ( <main className="px-3 py-4 mt-14 pb-28 bg-[#f3f4f6] min-h-screen">
   </section>
 
   {/* Floating Quick Scan Button */}
-  <button className="fixed bottom-20 right-4 bg-[#0d5f94] text-white px-6 py-4 rounded-full shadow-xl flex items-center gap-2 hover:bg-[#0b527f] transition">
+  
+   <Link
+  to="/aiscan"
+ className="fixed bottom-20 right-4 bg-[#0d5f94] text-white px-6 py-4 rounded-full shadow-xl flex items-center gap-2 hover:bg-[#0b527f] transition">
 
-    <span className="material-symbols-outlined">
-      qr_code_scanner
-    </span>
+  <span
+    className="material-symbols-outlined"
+    style={{
+      fontVariationSettings: "'FILL' 1",
+    }}
+  >
+    barcode_scanner
+  </span>
 
-    <span className="font-semibold">
-      QUICK SCAN
-    </span>
-
-  </button>
+  <span className="font-semibold text-lg">
+          QUICK SCAN
+  </span>
+</Link>
 
 </main>
+ {/* Modal goes HERE */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+          <div className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl">
 
-);
+            <div className="flex justify-between items-center mb-5">
+              <h2 className="text-2xl font-bold text-slate-800">
+                Add Inventory Item
+              </h2>
+
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="p-1 hover:bg-gray-100 rounded-full"
+              >
+                <span className="material-symbols-outlined">
+                  close
+                </span>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+
+              <input
+                type="text"
+                placeholder="Item Name"
+                value={newItem.name}
+                onChange={(e) =>
+                  setNewItem({
+                    ...newItem,
+                    name: e.target.value,
+                  })
+                }
+                className="w-full border border-gray-200 rounded-xl p-3 focus:ring-2 focus:ring-[#0d5f94]"
+              />
+
+              <select
+                value={newItem.category}
+                onChange={(e) =>
+                  setNewItem({
+                    ...newItem,
+                    category: e.target.value,
+                  })
+                }
+                className="w-full border border-gray-200 rounded-xl p-3"
+              >
+                <option value="">Select Category</option>
+                <option value="Medicine">Medicine</option>
+                <option value="Medical Supply">Medical Supply</option>
+                <option value="IV Fluid">IV Fluid</option>
+                <option value="Vaccine">Vaccine</option>
+                <option value="Food & Dairy">Food & Dairy</option>
+              </select>
+
+              <input
+                type="text"
+                placeholder="Location"
+                value={newItem.location}
+                onChange={(e) =>
+                  setNewItem({
+                    ...newItem,
+                    location: e.target.value,
+                  })
+                }
+                className="w-full border border-gray-200 rounded-xl p-3"
+              />
+
+              <input
+                type="date"
+                value={newItem.expiryDate}
+                onChange={(e) =>
+                  setNewItem({
+                    ...newItem,
+                    expiryDate: e.target.value,
+                  })
+                }
+                className="w-full border border-gray-200 rounded-xl p-3"
+              />
+
+              <div className="flex gap-3 pt-2">
+               <button
+  onClick={() => setShowAddModal(false)}
+  className="
+    flex-1
+    border border-gray-200
+    py-3
+    rounded-xl
+    font-medium
+    text-slate-700
+    transition-all duration-200
+    hover:bg-blue-50
+    hover:border-[#0d5f94]
+    hover:text-[#0d5f94]
+    focus:bg-blue-50
+    focus:border-[#0d5f94]
+    focus:text-[#0d5f94]
+    active:bg-[#0d5f94]
+    active:text-white
+  "
+>
+  Cancel
+</button>
+
+              <button
+  onClick={() => {
+    const existingItems =
+      JSON.parse(localStorage.getItem("inventoryItems")) || [];
+
+    const item = {
+      id: Date.now(),
+      title: newItem.name,
+      categoryType: newItem.category,
+      location: newItem.location,
+      expiryDate: newItem.expiryDate,
+      status: "STABLE",
+    };
+
+    localStorage.setItem(
+      "inventoryItems",
+      JSON.stringify([...existingItems, item])
+    );
+
+    setShowAddModal(false);
+
+    setNewItem({
+      name: "",
+      category: "",
+      location: "",
+      expiryDate: "",
+    });
+  }}
+
+  className="
+    flex-1
+    bg-[#0d5f94]
+    hover:bg-[#0b527f]
+    text-white
+    py-3
+    rounded-xl
+    font-semibold
+    shadow-sm
+    transition-all duration-200
+    hover:shadow-md
+    hover:-translate-y-0.5
+    active:scale-95
+    focus:outline-none
+    focus:ring-2
+    focus:ring-[#0d5f94]/30
+  "
+>
+  Add Item
+</button>
+              </div>
+
+            </div>
+
+          </div>    
+        </div>
+      )}
+    </>
+  );
 }

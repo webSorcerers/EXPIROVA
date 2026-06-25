@@ -51,20 +51,21 @@ export function BottomNav() {
   </span>
 </Link>
 
- <Link
+<Link
   to="/alerts"
-    className={`flex flex-col items-center transition-all duration-300 ${
+  className={`flex flex-col items-center transition-all duration-300 ${
     location.pathname === "/alerts"
       ? "text-[#0d5f94] scale-110"
       : "text-gray-500 hover:text-[#0d5f94]"
   }`}
-   
 >
-  <span className="material-symbols-outlined">notifications</span>
+  <span className="material-symbols-outlined">
+    notifications
+  </span>
 
-  <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-
-  <span className="text-xs">Alerts</span>
+  <span className="text-xs">
+    Alerts
+  </span>
 </Link>
 
     </nav>
