@@ -36,13 +36,9 @@ export function Alertcontent() {
 
   const markAsUsed = (id, urgent) => {
     if (urgent) {
-      setUrgentAlerts((prev) =>
-        prev.filter((item) => item.id !== id)
-      );
+      setUrgentAlerts((prev) => prev.filter((item) => item.id !== id));
     } else {
-      setWarningAlerts((prev) =>
-        prev.filter((item) => item.id !== id)
-      );
+      setWarningAlerts((prev) => prev.filter((item) => item.id !== id));
     }
 
     setToast(true);
@@ -65,13 +61,9 @@ export function Alertcontent() {
       <div className="p-6">
         <div className="flex justify-between items-start gap-4">
           <div>
-            <h4 className="text-2xl font-bold text-gray-900">
-              {name}
-            </h4>
+            <h4 className="text-2xl font-bold text-gray-900">{name}</h4>
 
-            <p className="text-gray-500 mt-1">
-              Batch ID: {batch}
-            </p>
+            <p className="text-gray-500 mt-1">Batch ID: {batch}</p>
           </div>
 
           <span
@@ -87,42 +79,35 @@ export function Alertcontent() {
 
         <div className="flex gap-8 mt-5 text-gray-600">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined">
-              inventory_2
-            </span>
+            <span className="material-symbols-outlined">inventory_2</span>
             {quantity}
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined">
-              calendar_today
-            </span>
+            <span className="material-symbols-outlined">calendar_today</span>
             {expiry}
           </div>
         </div>
       </div>
 
       <div className="border-t border-gray-200 p-4">
-      <button
-  onClick={() => markAsUsed(id, urgent)}
-  className="w-full bg-[#0d5f94] hover:bg-[#0b527f] text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-200"
->
-  <span className="material-symbols-outlined">
-    check_circle
-  </span>
-
-  Mark as Used
-</button>
+        <button
+          onClick={() => markAsUsed(id, urgent)}
+          className="w-full bg-[#0d5f94] hover:bg-[#0b527f] text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-200"
+        >
+          <span className="material-symbols-outlined">check_circle</span>
+          Mark as Used
+        </button>
       </div>
     </div>
   );
 
   return (
     <>
-    <main
-  className="overflow-y-auto px-6 pt-20 pb-32 bg-gray-50"
-  style={{ height: "calc(100vh - 72px)" }}
->
+      <main
+        className="overflow-y-auto px-6 pt-20 pb-32 bg-gray-50"
+        style={{ height: "calc(100vh - 72px)" }}
+      >
         {/* HERO HEADER */}
         <section className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
@@ -130,8 +115,8 @@ export function Alertcontent() {
           </h1>
 
           <p className="text-base text-gray-500 mt-2">
-            Stay ahead and take action to reduce waste and improve
-            inventory efficiency.
+            Stay ahead and take action to reduce waste and improve inventory
+            efficiency.
           </p>
         </section>
 
@@ -150,11 +135,7 @@ export function Alertcontent() {
 
             <div className="space-y-4">
               {urgentAlerts.map((alert) => (
-                <AlertCard
-                  key={alert.id}
-                  {...alert}
-                  urgent
-                />
+                <AlertCard key={alert.id} {...alert} urgent />
               ))}
             </div>
           </section>
@@ -175,48 +156,40 @@ export function Alertcontent() {
 
             <div className="space-y-4">
               {warningAlerts.map((alert) => (
-                <AlertCard
-                  key={alert.id}
-                  {...alert}
-                />
+                <AlertCard key={alert.id} {...alert} />
               ))}
             </div>
           </section>
         )}
 
         {/* EMPTY STATE */}
-        {urgentAlerts.length === 0 &&
-          warningAlerts.length === 0 && (
-            <div className="bg-white rounded-2xl border p-12 text-center shadow-sm">
-              <span className="material-symbols-outlined text-green-600 text-6xl">
-                task_alt
-              </span>
+        {urgentAlerts.length === 0 && warningAlerts.length === 0 && (
+          <div className="bg-white rounded-2xl border p-12 text-center shadow-sm">
+            <span className="material-symbols-outlined text-green-600 text-6xl">
+              task_alt
+            </span>
 
-              <h3 className="text-2xl font-bold mt-4">
-                All alerts cleared!
-              </h3>
+            <h3 className="text-2xl font-bold mt-4">All alerts cleared!</h3>
 
-              <p className="text-gray-500 mt-2">
-                No items currently require attention.
-              </p>
-            </div>
-          )}
+            <p className="text-gray-500 mt-2">
+              No items currently require attention.
+            </p>
+          </div>
+        )}
       </main>
 
       {/* SUCCESS TOAST */}
       {toast && (
         <div className="fixed bottom-6 left-6 z-[100] bg-white border border-gray-200 shadow-2xl rounded-2xl p-5 min-w-[350px]">
           <div className="flex items-start gap-4">
-           <div className="w-12 h-12 rounded-full bg-[#dbeeff] flex items-center justify-center">
-  <span className="material-symbols-outlined text-[#0d5f94]">
-    check
-  </span>
-</div>
+            <div className="w-12 h-12 rounded-full bg-[#dbeeff] flex items-center justify-center">
+              <span className="material-symbols-outlined text-[#0d5f94]">
+                check
+              </span>
+            </div>
 
             <div>
-              <h4 className="font-bold text-gray-900">
-                Item marked as used!
-              </h4>
+              <h4 className="font-bold text-gray-900">Item marked as used!</h4>
 
               <p className="text-gray-500 mt-1">
                 The item has been removed from alerts.
@@ -228,21 +201,20 @@ export function Alertcontent() {
 
       {/* FLOATING BUTTON */}
       <Link
-  to="/aiscan"
-  className="fixed bottom-20 right-4 bg-[#0d5f94] text-white px-6 py-4 rounded-full shadow-xl flex items-center gap-2 hover:bg-[#0b527f] transition">
-  <span
-    className="material-symbols-outlined"
-    style={{
-      fontVariationSettings: "'FILL' 1",
-    }}
-  >
-    barcode_scanner
-  </span>
+        to="/aiscan"
+        className="fixed bottom-20 right-4 bg-[#0d5f94] text-white px-6 py-4 rounded-full shadow-xl flex items-center gap-2 hover:bg-[#0b527f] transition"
+      >
+        <span
+          className="material-symbols-outlined"
+          style={{
+            fontVariationSettings: "'FILL' 1",
+          }}
+        >
+          barcode_scanner
+        </span>
 
-  <span className="font-semibold text-lg">
-    Scan New Item
-  </span>
-</Link>
+        <span className="font-semibold text-lg">Scan New Item</span>
+      </Link>
     </>
   );
 }
