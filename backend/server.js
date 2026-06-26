@@ -7,7 +7,6 @@ import productRoutes from './routes/productRoutes.js';
 import initCronJobs from './services/cronService.js';
 
 dotenv.config();
-console.log("Gemini Key:", process.env.GEMINI_API_KEY);
 
 const app = express();
 
